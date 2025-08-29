@@ -591,7 +591,7 @@
                     <div class="set-item">
                         <div class="set-number">1</div>
                         <input type="number" class="set-input weight-input" placeholder="Peso (kg)" min="0">
-                        <input type="number" class="set-input reps-input" placeholder="Repeticiones" min="0">
+                        <input type="number" class="set-input reps-input" placeholder="Repeticiones" min="0" title="Para calcular el 1RM, introduce entre 1 y 10 repeticiones">
                         <button class="btn btn-danger" onclick="removeSet(this)">-</button>
                     </div>
                 </div>
@@ -615,7 +615,7 @@
             setItem.innerHTML = `
                 <div class="set-number">${setCount}</div>
                 <input type="number" class="set-input weight-input" placeholder="Peso (kg)" min="0">
-                <input type="number" class="set-input reps-input" placeholder="Repeticiones" min="0">
+                <input type="number" class="set-input reps-input" placeholder="Repeticiones" min="0" title="Para calcular el 1RM, introduce entre 1 y 10 repeticiones">
                 <button class="btn btn-danger" onclick="removeSet(this)">-</button>
             `;
             
@@ -659,21 +659,32 @@
 
             // Recopilar datos del entrenamiento
             const exerciseCards = document.querySelectorAll('.exercise-card');
+            let invalidReps = false;
             exerciseCards.forEach(card => {
+                if (invalidReps) return;
                 const exerciseName = card.querySelector('.exercise-name').textContent;
                 const sets = [];
-                
+
                 card.querySelectorAll('.set-item').forEach(setItem => {
+                    if (invalidReps) return;
                     const weight = setItem.querySelector('.weight-input').value;
                     const reps = setItem.querySelector('.reps-input').value;
                     if (reps) { // Solo verificamos que haya repeticiones
+                        const parsedWeight = weight ? parseFloat(weight) : 0; // Si no hay peso, considerar 0
+                        const parsedReps = parseInt(reps);
+                        if (parsedWeight > 0 && (parsedReps < 1 || parsedReps > 10)) {
+                            invalidReps = true;
+                            return;
+                        }
                         sets.push({
-                            weight: weight ? parseFloat(weight) : 0, // Si no hay peso, considerar 0
-                            reps: parseInt(reps)
+                            weight: parsedWeight,
+                            reps: parsedReps
                         });
                     }
                 });
-                
+
+                if (invalidReps) return;
+
                 if (sets.length > 0) {
                     // Calcular 1RM estimado para ejercicios con peso
                     let estimated1RM = 0;
@@ -685,7 +696,7 @@
                             }
                         }
                     });
-                    
+
                     currentWorkout.exercises.push({
                         name: exerciseName,
                         sets: sets,
@@ -693,6 +704,11 @@
                     });
                 }
             });
+
+            if (invalidReps) {
+                alert('Para calcular el 1RM, introduce entre 1 y 10 repeticiones para series con peso.');
+                return;
+            }
 
             currentWorkout.endTime = new Date();
             currentWorkout.duration = Math.round((currentWorkout.endTime - currentWorkout.startTime) / 1000 / 60); // minutos
@@ -1087,11 +1103,16 @@
             for (let i = 0; i < container.children.length; i++) {
                 const weightInput = document.getElementById(`editWeight${i}`);
                 const repsInput = document.getElementById(`editReps${i}`);
-                
+
                 if (weightInput && repsInput) {
                     const weight = parseFloat(weightInput.value) || 0;
                     const reps = parseInt(repsInput.value) || 0;
-                    
+
+                    if (weight > 0 && (reps < 1 || reps > 10)) {
+                        alert('Para calcular el 1RM, introduce entre 1 y 10 repeticiones para series con peso.');
+                        return;
+                    }
+
                     if (weight > 0 && reps > 0) {
                         sets.push({ weight, reps });
                     }
