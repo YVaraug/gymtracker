@@ -121,7 +121,7 @@ La aplicación incluye una base de datos completa con:
 - Formato: `ID,exercise_name,image_url,level,reps,gender,body_part,equipment`
 
 ### Cambiar estilos
-- Edita la sección `<style>` en `index.html`
+- Edita el archivo `styles.css`
 - Modifica colores, fuentes, tamaños según preferencias
 
 ### Añadir funcionalidades
