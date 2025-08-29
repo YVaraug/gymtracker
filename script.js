@@ -414,6 +414,7 @@ function finishWorkout() {
     // Recopilar datos del entrenamiento
     const exerciseCards = document.querySelectorAll('.exercise-card');
     let invalidReps = false;
+    let highReps = false;
     exerciseCards.forEach(card => {
         if (invalidReps) return;
         const exerciseName = card.querySelector('.exercise-name').textContent;
@@ -426,9 +427,14 @@ function finishWorkout() {
             if (reps) { // Solo verificamos que haya repeticiones
                 const parsedWeight = weight ? parseFloat(weight) : 0; // Si no hay peso, considerar 0
                 const parsedReps = parseInt(reps);
-                if (parsedWeight > 0 && (parsedReps < 1 || parsedReps > 10)) {
-                    invalidReps = true;
-                    return;
+                if (parsedWeight > 0) {
+                    if (parsedReps < 1) {
+                        invalidReps = true;
+                        return;
+                    }
+                    if (parsedReps > 10) {
+                        highReps = true;
+                    }
                 }
                 sets.push({
                     weight: parsedWeight,
@@ -443,8 +449,8 @@ function finishWorkout() {
             // Calcular 1RM estimado para ejercicios con peso
             let estimated1RM = 0;
             sets.forEach(set => {
-                if (set.weight > 0 && set.reps >= 1 && set.reps <= 10) {
-                    const oneRM = calculate1RM(set.weight, set.reps);
+                if (set.weight > 0 && set.reps >= 1) {
+                    const oneRM = calculate1RM(set.weight, Math.min(set.reps, 10));
                     if (oneRM && oneRM > estimated1RM) {
                         estimated1RM = oneRM;
                     }
@@ -460,7 +466,7 @@ function finishWorkout() {
     });
 
     if (invalidReps) {
-        alert('Para calcular el 1RM, introduce entre 1 y 10 repeticiones para series con peso.');
+        alert('Para calcular el 1RM, introduce al menos 1 repetición para series con peso.');
         return;
     }
 
@@ -478,6 +484,9 @@ function finishWorkout() {
     document.getElementById('exercisesList').innerHTML = '';
 
     alert('¡Entrenamiento guardado exitosamente!');
+    if (highReps) {
+        alert('Se detectaron series con más de 10 repeticiones; el 1RM se estimó usando 10 repeticiones.');
+    }
 }
 
 // Iniciar descanso
@@ -852,6 +861,7 @@ function saveExerciseEdit(workoutIndex, exerciseIndex) {
     const exercise = workout.exercises[exerciseIndex];
     const container = document.getElementById('editSetsContainer');
     const sets = [];
+    let highReps = false;
     
     // Recopilar datos de las series
     for (let i = 0; i < container.children.length; i++) {
@@ -862,9 +872,14 @@ function saveExerciseEdit(workoutIndex, exerciseIndex) {
             const weight = parseFloat(weightInput.value) || 0;
             const reps = parseInt(repsInput.value) || 0;
 
-            if (weight > 0 && (reps < 1 || reps > 10)) {
-                alert('Para calcular el 1RM, introduce entre 1 y 10 repeticiones para series con peso.');
-                return;
+            if (weight > 0) {
+                if (reps < 1) {
+                    alert('Para calcular el 1RM, introduce al menos 1 repetición para series con peso.');
+                    return;
+                }
+                if (reps > 10) {
+                    highReps = true;
+                }
             }
 
             if (weight > 0 && reps > 0) {
@@ -884,8 +899,8 @@ function saveExerciseEdit(workoutIndex, exerciseIndex) {
     // Recalcular 1RM
     let estimated1RM = 0;
     sets.forEach(set => {
-        if (set.weight > 0 && set.reps >= 1 && set.reps <= 10) {
-            const oneRM = calculate1RM(set.weight, set.reps);
+        if (set.weight > 0 && set.reps >= 1) {
+            const oneRM = calculate1RM(set.weight, Math.min(set.reps, 10));
             if (oneRM && oneRM > estimated1RM) {
                 estimated1RM = oneRM;
             }
@@ -899,6 +914,9 @@ function saveExerciseEdit(workoutIndex, exerciseIndex) {
     displayWorkoutHistory();
     updateStats();
     alert('Ejercicio actualizado correctamente.');
+    if (highReps) {
+        alert('Se detectaron series con más de 10 repeticiones; el 1RM se estimó usando 10 repeticiones.');
+    }
 }
 
 // Guardar edición de descanso
@@ -1061,10 +1079,11 @@ function updateStats() {
 
 // Calcular 1RM usando fórmula de Brzycki
 function calculate1RM(weight, reps) {
-    if (reps >= 1 && reps <= 10) {
-        return weight * (36 / (37 - reps));
+    if (reps < 1) {
+        return null;
     }
-    return null;
+    const effectiveReps = Math.min(reps, 10);
+    return weight * (36 / (37 - effectiveReps));
 }
 
 // Detectar si un ejercicio es de peso corporal
