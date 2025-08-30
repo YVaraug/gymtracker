@@ -753,7 +753,7 @@ function editRegularExercise(workoutIndex, exerciseIndex) {
                 <div style="display: flex; gap: 10px;">
                     <input type="number" id="editWeight${setIndex}" value="${set.weight}" placeholder="Peso (kg)" style="flex: 1;">
                     <input type="number" id="editReps${setIndex}" value="${set.reps}" placeholder="Reps" style="flex: 1;">
-                    <button class="btn btn-sm btn-danger" onclick="removeSet(${workoutIndex}, ${exerciseIndex}, ${setIndex})">
+                    <button class="btn btn-sm btn-danger" onclick="removeSetEdit(${workoutIndex}, ${exerciseIndex}, ${setIndex})">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -828,7 +828,7 @@ function addNewSet(workoutIndex, exerciseIndex) {
             <div style="display: flex; gap: 10px;">
                 <input type="number" id="editWeight${setIndex}" placeholder="Peso (kg)" style="flex: 1;">
                 <input type="number" id="editReps${setIndex}" placeholder="Reps" style="flex: 1;">
-                <button class="btn btn-sm btn-danger" onclick="removeSet(${workoutIndex}, ${exerciseIndex}, ${setIndex})">
+                <button class="btn btn-sm btn-danger" onclick="removeSetEdit(${workoutIndex}, ${exerciseIndex}, ${setIndex})">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -838,8 +838,8 @@ function addNewSet(workoutIndex, exerciseIndex) {
     container.insertAdjacentHTML('beforeend', newSetHTML);
 }
 
-// Eliminar serie
-function removeSet(workoutIndex, exerciseIndex, setIndex) {
+// Eliminar serie en el modal de edición
+function removeSetEdit(workoutIndex, exerciseIndex, setIndex) {
     const container = document.getElementById('editSetsContainer');
     const sets = container.children;
     
