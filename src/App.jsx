@@ -15,7 +15,9 @@ const tabs = [
 
 export default function App() {
   const [current, setCurrent] = useState('profile');
-  const CurrentComponent = tabs.find(t => t.id === current).component;
+  // Ensure we always have a component to render even if the tab id is invalid
+  const CurrentComponent =
+    tabs.find(t => t.id === current)?.component || Profile;
 
   return (
     <div className="min-h-screen bg-gray-100">
