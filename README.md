@@ -29,10 +29,12 @@ Esto levantará el servidor de desarrollo en [http://localhost:5173](http://loca
 
 ```bash
 npm run build
-npm run deploy
 ```
 
-El comando `deploy` publica el contenido de `dist/` en la rama `gh-pages` para su uso con GitHub Pages.
+El comando de construcción genera los archivos listos para producción en la carpeta `dist/`.
+Para publicar en GitHub Pages, copia `dist/index.html` y la carpeta `dist/assets` al directorio raíz del
+repositorio (reemplazando el `index.html` existente) y sube los cambios.
+El archivo `index.dev.html` se mantiene como punto de entrada para el entorno de desarrollo.
 
 ## Historial de entrenamientos
 
